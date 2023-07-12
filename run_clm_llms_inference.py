@@ -451,13 +451,14 @@ def main():
     audio_conv_kernel=model_args.audio_conv_kernel, 
     audio_conv_stride=model_args.audio_conv_stride,
     clip_config=clip_config, whisper_config=whisper_config, llm_config=llm_config)
-
+    device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
     model = MM_LLMs.from_pretrained(
         training_args.output_dir,
         config = model_config,
         # load_in_8bit=True,
         # torch_dtype=torch.float16,
-        # device_map=device_map,
+        # device_map="auto",
+        ignore_mismatched_sizes=True
     )
     # if training_args.local_rank == 0:
     #     print(model)

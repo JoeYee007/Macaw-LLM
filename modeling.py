@@ -857,14 +857,17 @@ class MM_LLMs_Config(PretrainedConfig):
         clip_config = CLIPConfig.from_dict(config_dict['image_config'])
         whisper_config = WhisperConfig.from_dict(config_dict['audio_config'])
         llm_config = LlamaConfig.from_dict(config_dict['llm_config'])
-
+        print(clip_config)
+        print(whisper_config)
+        print(llm_config)
         return cls(clip_config=clip_config, whisper_config=whisper_config, llm_config=llm_config, **kwargs)
 
 class MM_LLMs(PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
-
+        self.config.attention_heads=8
+        print(self.config)
         self.temporal_position_embeddings = nn.Embedding(config.n_frames, 
         config.image_config.projection_dim)
 
@@ -875,7 +878,7 @@ class MM_LLMs(PreTrainedModel):
         self.audio_encoder = WhisperModel(config.audio_config)
 
         self.llm = LlamaForCausalLM(config.llm_config)
-
+        print(config.image_config.projection_dim, config.attention_heads, config.llm_config.hidden_size)
         attn_dropout = 0.1
         is_add_bias_kv = True
         is_add_zero_attn = True

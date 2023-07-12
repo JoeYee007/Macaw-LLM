@@ -87,5 +87,5 @@ def sample_frames_from_video():
 
     
 if __name__ == '__main__':
-    sample_frames_from_video()
+    #sample_frames_from_video()
     extract_audio_from_video()

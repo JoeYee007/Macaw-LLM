@@ -1,8 +1,8 @@
-export NCCL_DEBUG=INFO
-export NCCL_SOCKET_IFNAME=eth1
-export NCCL_IB_GID_INDEX=3
-export NCCL_IB_SL=3
-export NCCL_NET_GDR_READ=1
+#export NCCL_DEBUG=INFO
+#export NCCL_SOCKET_IFNAME=eth1
+#export NCCL_IB_GID_INDEX=3
+#export NCCL_IB_SL=3
+#export NCCL_NET_GDR_READ=1
 
 export CHIEF_IP=127.0.0.1
 export MASTER_ADDR="${CHIEF_IP:=localhost}"
@@ -11,7 +11,7 @@ export MASTER_PORT="${MASTER_PORT:=29500}"
 path=./
 train_path=$path/run_clm_llms.py
     
-torchrun --nnodes 1 --nproc_per_node 8 \
+torchrun --nnodes 1 --nproc_per_node 1 \
     ${train_path} \
     --deepspeed $path/configs/deepspeed_config.json \
     --model_name_or_path ${path} \
@@ -39,4 +39,4 @@ torchrun --nnodes 1 --nproc_per_node 8 \
     --ddp_timeout 3600 \
     --seed 1 \
     --gradient_checkpointing False \
-    --output_dir $path/trained_models/MM-LLMs/mm_llms_trainer/
+    --output_dir $path/trained_models/MM-LLMs/mm_llms_trainer2/

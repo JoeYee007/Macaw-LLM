@@ -45,11 +45,13 @@ def preprocess_vqa2_to_val_dataset():
     all_val_examples = []
     for ind, e in enumerate(tqdm(all_examples)):
         
-        _image_dir = e['image_path']
-        if len(_image_dir.split('_')[-1].split('.')[0]) < 12:
-            i_str = _image_dir.split('_')[-1].split('.')[0]
-            n_str = '0' * (12 - len(i_str)) + i_str
-            _image_dir = _image_dir.replace(i_str, n_str)
+        #_image_dir = e['image_path']
+        #if len(_image_dir.split('_')[-1].split('.')[0]) < 12:
+        #    i_str = _image_dir.split('_')[-1].split('.')[0]
+        #    n_str = '0' * (12 - len(i_str)) + i_str
+        #    _image_dir = _image_dir.replace(i_str, n_str)
+        _image_id = e['image_id']
+        _image_dir='data/vqa/' + 'val2014' + '/COCO_' + 'val2014' +'_' +  '0' * (12 - len(str(_image_id))) + str(_image_id) + '.jpg'
         e = {
             'image': _image_dir,
             'video': 'None',
@@ -111,7 +113,7 @@ def preprocess_vqa2_to_tensor_dataset(all_visual_names, tokenizer):
     for ind, e in enumerate(tqdm(all_examples)):
         if ind not in random_indices:
             continue
-        all_image_names.append(e['image_path'])
+        all_image_names.append(e['image_id'])
         e = {
             'instruction': all_questions[e['question_id']][1],
             'input': "",
@@ -123,11 +125,16 @@ def preprocess_vqa2_to_tensor_dataset(all_visual_names, tokenizer):
         all_textual_inputs.append(full_texts)
         t_all = tokenizer.encode(full_texts)
         
-        _image_dir = all_image_names[-1]
+        _image_id = all_image_names[-1]
+        '''
         if len(_image_dir.split('_')[-1].split('.')[0]) < 12:
             i_str = _image_dir.split('_')[-1].split('.')[0]
             n_str = '0' * (12 - len(i_str)) + i_str
             _image_dir = _image_dir.replace(i_str, n_str)
+        '''
+        _image_dir = 'data/vqa/train2014/COCO_train2014_' + '0' * (12 - len(str(_image_id))) + str(_image_id) + '.jpg'
+        if ind == 0:
+            print(_image_dir)
         all_images.append(all_visual_names[_image_dir])
         index += 1
         
@@ -163,7 +170,7 @@ def preprocess_vqa2_to_tensor_dataset(all_visual_names, tokenizer):
     # pickle.dump(tokenized_texts, open('data/vqa/vqa_new.cache', "wb"), protocol=4)
 
     video_names = {'data': all_image_names}
-    # json_dump(video_names, 'data/vqa/vqa_video_names.json')
+    json_dump(video_names, 'data/vqa/vqa_video_names.json')
 
     return all_textual_inputs, all_native_labels, all_images, all_null_audios, all_null_videos
 
@@ -345,6 +352,7 @@ def preprocess_avsd_to_tensor_dataset(all_visual_names, tokenizer):
                 all_labels.append(torch.tensor([labels], dtype=torch.int))
 
         video_names = {'split': split, 'data': all_video_names}
+        json_dump(video_names, 'data/avsd/avsd_video_names.json')
 
         tokenized_texts = tokenizer(all_textual_inputs, max_length=max_length, padding='max_length', truncation=True)
         tokenized_texts['labels'] = all_native_labels
@@ -455,20 +463,24 @@ def combine_visual_and_audio_names():
 
     all_image_names = []
 
-    def add_image_names(dir=None):
+    def add_image_names(dir=None, data_type='train2014'):
         all_examples = json_load(dir)['annotations']
 
         for ind, e in enumerate(tqdm(all_examples)):
-            
+            '''print(e)            
             _image_dir = e['image_path']
             if len(_image_dir.split('_')[-1].split('.')[0]) < 12:
                 i_str = _image_dir.split('_')[-1].split('.')[0]
                 n_str = '0' * (12 - len(i_str)) + i_str
                 _image_dir = _image_dir.replace(i_str, n_str)
-
+            '''
+            _image_id = e['image_id']
+            _image_dir='data/vqa/' + data_type + '/COCO_' + data_type +'_' +  '0' * (12 - len(str(_image_id))) + str(_image_id) + '.jpg'
+            if ind==0:
+                print(_image_dir)
             all_image_names.append(_image_dir)
-    add_image_names('data/vqa/mscoco_train2014_annotations.json')
-    add_image_names('data/vqa/mscoco_val2014_annotations.json')
+    add_image_names('data/vqa/mscoco_train2014_annotations.json', data_type='train2014')
+    add_image_names('data/vqa/mscoco_val2014_annotations.json', data_type='val2014')
 
     all_video_names = []
 
@@ -490,5 +502,7 @@ def combine_visual_and_audio_names():
     json_dump(all_names, 'data/all_visual_names.json')
     
 if __name__ == '__main__':
-    combine_visual_and_audio_names()
-    preprocess_all_datasets()
+    #combine_visual_and_audio_names()
+    #preprocess_all_datasets()
+    preprocess_vqa2_to_val_dataset()
+    preprocess_avsd_to_val_dataset()
